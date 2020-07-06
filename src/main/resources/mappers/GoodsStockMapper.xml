@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shop.pss.dao.GoodsStockMapper">
+
+    <resultMap id="BaseResult" type="com.shop.pss.bean.GoodsStock">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="code" property="code" jdbcType="VARCHAR"/>
+        <result column="number" property="number" jdbcType="INTEGER"/>
+        <result column="price" property="price" jdbcType="DECIMAL"/>
+        <result column="score" property="score" jdbcType="DECIMAL"/>
+        <result column="shortage" property="shortage" jdbcType="INTEGER"/>
+        <result column="unit" property="unit" jdbcType="VARCHAR"/>
+        <result column="version" property="version" jdbcType="BIGINT"/>
+    </resultMap>
+
+    <select id="goodsStockExport" resultType="java.util.Map">
+        SELECT
+          `id`, `name`, `code`, `number`, `price`, `score`, `unit`, `version`
+        FROM goods_stock
+    </select>
+
+    <select id="goodsShortageNum" resultType="int">
+        SELECT
+          shortage_num
+        FROM goods_shortage limit 1
+    </select>
+
+    <select id="queryAllGoodsStock" parameterType="java.util.Map" resultMap="BaseResult">
+        SELECT
+          `id`, `name`, `code`, `number`, `price`, `score`, `shortage`, `unit`, `version`
+        FROM goods_stock
+        <trim prefix="WHERE" prefixOverrides="AND|OR">
+            <if test="keyWord != null and keyWord != ''">
+                AND (`name` LIKE CONCAT('%',#{keyWord},'%') OR `code` LIKE CONCAT('%',#{keyWord},'%') )
+            </if>
+            <if test="shortage != null and shortage == 1">
+                AND  number <![CDATA[ <= ]]> shortage
+            </if>
+        </trim>
+        ORDER BY update_time DESC
+    </select>
+
+    <select id="queryOne" parameterType="java.lang.String" resultMap="BaseResult">
+        SELECT
+          `id`, `name`, `code`, `number`, `price`, `score`, `shortage`, `unit`, `version`
+        FROM goods_stock
+        WHERE `code` = #{code}
+    </select>
+
+    <select id="queryAllShortage" parameterType="int" resultMap="BaseResult">
+        SELECT
+        `id`, `name`, `code`, `number`, `price`, `score`, `shortage`, `unit`
+        FROM goods_stock
+        WHERE <![CDATA[ `number` <= shortage  ]]>
+    </select>
+
+    <select id="queryAllByIds" parameterType="java.util.List" resultMap="BaseResult">
+        SELECT
+          `id`, `name`, `code`, `number`, `price`, `score`, `shortage`, `unit`, `version`
+        FROM goods_stock
+        WHERE `id` IN
+        <foreach collection="ids"  item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <select id="queryAllByCodes" parameterType="java.util.List" resultMap="BaseResult">
+        SELECT
+        `id`, `name`, `code`, `number`, `price`, `score`, `shortage`, `unit`, `version`
+        FROM goods_stock
+        WHERE `code` IN
+        <foreach collection="codes"  item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+
+    <insert id="insertAll" parameterType="java.util.List">
+        INSERT INTO
+            goods_stock(`id`, `name`, `code`, `number`, `price`, `score`, `shortage`, `unit`, `version`)
+        VALUES
+        <foreach collection="goodsStocks" item="item" index="index" separator=",">
+            (#{item.id}, #{item.name}, #{item.code}, #{item.number}, #{item.price}, #{item.score}, #{item.shortage}, #{item.unit}, 1)
+        </foreach>
+    </insert>
+
+    <update id="update" parameterType="com.shop.pss.bean.GoodsStock">
+        UPDATE goods_stock SET
+        version = (version + 1)
+        <if test="name !=null and name != ''">
+            ,name = #{name}
+        </if>
+        <if test="number !=null and number != '' or number == 0">
+            ,number = #{number}
+        </if>
+        <if test="price !=null and price != '' or price == 0">
+            ,price = #{price}
+        </if>
+        <if test="score !=null and score != '' or score == 0">
+            ,score = #{score}
+        </if>
+        <if test="code !=null and code != ''">
+            ,code = #{code}
+        </if>
+        <if test="unit !=null and unit != ''">
+            ,unit = #{unit}
+        </if>
+        <if test="shortage !=null and shortage != '' or shortage == 0">
+            ,shortage = #{shortage}
+        </if>
+        WHERE id = #{id} AND version = #{version}
+    </update>
+
+    <update id="updateAll" parameterType="java.util.List">
+        UPDATE goods_stock
+        <trim prefix="SET" suffixOverrides=",">
+            <trim prefix="number = case" suffix="end,">
+                <foreach collection="goodsStocks" item="item" index="index">
+                    when `code` = #{item.code} AND `version` = #{item.version} then #{item.number}
+                </foreach>
+            </trim>
+            <trim prefix="version = case" suffix="end,">
+                <foreach collection="goodsStocks" item="item" index="index">
+                    when `code` = #{item.code} AND `version` = #{item.version} then #{item.versionId}
+                </foreach>
+            </trim>
+        </trim>
+        <where>
+            <foreach collection="goodsStocks" item="item" open="( " separator=") or (" close=" )">
+                `code` = #{item.code} AND `version` = #{item.version}
+            </foreach>
+        </where>
+    </update>
+
+    <delete id="delete">
+        DELETE FROM goods_stock WHERE id IN
+        <foreach collection="list"  item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <update id="updateShortageNum" parameterType="int">
+        UPDATE goods_shortage SET shortage_num = #{num}
+    </update>
+
+</mapper>

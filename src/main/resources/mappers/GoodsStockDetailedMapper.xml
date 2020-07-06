@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shop.pss.dao.GoodsStockDetailedMapper">
+
+    <resultMap id="BaseResult" type="com.shop.pss.bean.GoodsStockDetailed">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="code" property="code"/>
+        <result column="number" property="number"/>
+        <result column="score" property="score" jdbcType="DECIMAL"/>
+        <result column="unit" property="unit" />
+        <result column="create_date" property="create_date" />
+        <result column="create_by" property="createBy" />
+    </resultMap>
+    <select id="queryAll" parameterType="java.util.Map" resultMap="BaseResult">
+        SELECT
+            `id`,
+            `name`,
+        CASE
+                `option`
+                WHEN 'out_stock' THEN '销售出库'
+                WHEN 'put_stock' THEN '新增入库'
+                WHEN 'update_out_stock' THEN '修改出库'
+                WHEN 'update_put_stock' THEN '修改入库'
+                WHEN 'delete_stock' THEN '删除库存'
+                WHEN 'update_score' THEN '修改积分'
+            END `option`,
+            `code`,
+            `number`,
+            `score`,
+            (select `name` from user where username = `create_by`) as create_by ,
+            `create_date`
+        FROM
+            goods_stock_detailed
+        <trim prefix="WHERE" prefixOverrides="AND|OR">
+            <if test="code != null and code != ''">
+                AND `code` = #{code}
+            </if>
+            <if test="keyWord != null and keyWord != ''">
+                AND `name` LIKE CONCAT('%',#{keyWord},'%')
+            </if>
+            <if test="option != null and option != ''">
+                AND `option` = #{option}
+            </if>
+	        <if test="start_date != null and start_date != ''">AND create_date <![CDATA[>=]]> #{start_date}</if>
+	        <if test="end_date != null and end_date != ''">AND create_date <![CDATA[<=]]>#{end_date}</if>
+        </trim>
+        ORDER BY
+            create_date DESC
+    </select>
+
+    <select id="queryOutGoods" parameterType="java.util.Map" resultMap="BaseResult">
+        SELECT
+            `id`,
+            `name`,
+        CASE
+            `option`
+                WHEN 'out_stock' THEN '销售出库'
+                WHEN 'put_stock' THEN '新增入库'
+                WHEN 'update_out_stock' THEN '修改出库'
+                WHEN 'update_put_stock' THEN '修改入库'
+                WHEN 'delete_stock' THEN '删除库存'
+                WHEN 'update_score' THEN '修改积分'
+        END `option`,
+            `code`,
+            sum(`number`) AS `number`,
+            sum(`score`) AS `score`,
+            (select `name` from user where username = `create_by`) as create_by ,
+            `create_date`
+        FROM
+           goods_stock_detailed
+        <trim prefix="WHERE" prefixOverrides="AND|OR">
+            <if test="option != null and option != ''">
+                AND `option` = #{option}
+            </if>
+            <if test="type != null and type == 'week'">
+              AND create_date <![CDATA[ > ]]> DATE_SUB(CURDATE(), INTERVAL 1 WEEK)
+            </if>
+            <if test="type != null and type == 'month'">
+                AND create_date <![CDATA[ > ]]> DATE_SUB(CURDATE(), INTERVAL 1 MONTH)
+            </if>
+            <if test="type != null and type == 'year'">
+                AND create_date <![CDATA[ > ]]> DATE_SUB(CURDATE(), INTERVAL 1 YEAR)
+            </if>
+            <if test="start_date != null and start_date != ''">AND create_date <![CDATA[>=]]> #{start_date}</if>
+            <if test="end_date != null and end_date != ''">AND create_date <![CDATA[<=]]>#{end_date}</if>
+        </trim>
+        GROUP BY `code`, `option`
+        ORDER BY `number` DESC
+    </select>
+
+    <select id="exportGoodsStockHistory" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+        gsd.`name`,
+        CASE
+        gsd.`option`
+        WHEN 'out_stock' THEN '销售出库'
+        WHEN 'put_stock' THEN '新增入库'
+        WHEN 'update_out_stock' THEN '修改出库'
+        WHEN 'update_put_stock' THEN '修改入库'
+        WHEN 'delete_stock' THEN '删除库存'
+        WHEN 'update_score' THEN '修改积分'
+        END `option`,
+        gsd.`code`,
+        gsd.`number`,
+        gsd.`score`,
+        gs.`unit`,
+        (select `name` from user where username = `create_by`) as create_by ,
+        gsd.`create_date`
+        FROM
+        goods_stock_detailed gsd
+        left join goods_stock gs on gs.code = gsd.code
+        <trim prefix="WHERE" prefixOverrides="AND|OR">
+            <if test="code != null and code != ''">
+                AND gsd.`code` = #{code}
+            </if>
+            <if test="keyWord != null and keyWord != ''">
+                AND gsd.`name` LIKE CONCAT('%',#{keyWord},'%')
+            </if>
+            <if test="option != null and option != ''">
+                AND gsd.`option` = #{option}
+            </if>
+            <if test="start_date != null and start_date != ''">AND gsd.create_date <![CDATA[>=]]> #{start_date}</if>
+            <if test="end_date != null and end_date != ''">AND gsd.create_date <![CDATA[<=]]>#{end_date}</if>
+        </trim>
+        ORDER BY
+        gsd.create_date DESC
+    </select>
+
+    <insert id="insertOne" parameterType="com.shop.pss.bean.GoodsStockDetailed">
+        INSERT INTO goods_stock_detailed
+          (`id`, `name`, `option`, `code`, `number`, `stock_total`, `score`, `create_date`,`create_by`)
+        VALUES
+          (#{id}, #{name}, #{option}, #{code}, #{number}, #{stockTotal}, #{score}, now(), #{createBy})
+    </insert>
+
+    <insert id="insert" parameterType="java.util.List">
+        INSERT INTO goods_stock_detailed
+          (`id`, `name`, `option`, `code`, `number`, `stock_total`, `score`, `create_date`,`create_by`)
+        VALUES
+        <foreach collection="goodsStockDetailed" item="item" separator=",">
+            (#{item.id}, #{item.name}, #{item.option}, #{item.code}, #{item.number}, #{item.stockTotal}, #{item.score}, now(),#{item.createBy})
+        </foreach>
+    </insert>
+
+</mapper>

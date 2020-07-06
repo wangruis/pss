@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<excelconfig>
+<!-- config为excel字段模型，类似mvc中的model，而非持久化中的bean,多表关联持久化模型较为复杂，不处理持久化部分   id及uploadType唯一 treeColIndex:树形结构，标识子节点所在excel列中的位置-->
+	<config id="goods_stock" uploadType = "goods_stock"  exportFileName="商品信息">
+	    <fields>
+			<!-- 0、name[导出时数据库sql映射名，prop_name: 入库时 bean name; show_name:excel列名]
+	    		1、字段顺device序为导入导出excel的顺序 2、nullable用于校验非空， 3、type用于校验格式，支持（string,date,convert[入库需转存或需关联校验时]）
+	    	  4、只有type是convert时convertid，ismult才有效    5、ismult用于标识该字段是否多条以逗号分隔   6、excel第一列为序号列，不在此再配置
+	    	  7、field里面的name虽然是导入导出的占坑，但是要与实体类和数据库的字段名称保持一致，否则新增或者刷新的情况下字段会丢失
+	    	  parent_index：树形结构，标识子节点所在excel中列中的位置（如第一列为序号列，则从1开始）
+	    	  8、unique:用于唯一校验
+	    	  -->
+			<field name="name" prop_name = "name" show_name="商品名称" default_val="" nullable="false" type="string" convertid="" ismult="false" ></field>
+			<field name="code" prop_name = "code" show_name="商品条码" default_val="" nullable="true" type="string" convertid="" ismult="false"></field>
+	    	<field name="number" prop_name = "number" show_name="库存数量" default_val="" nullable="false" type="string" convertid="" ismult="false"></field>
+	    	<field name="score" prop_name = "score" show_name="售价积分" default_val="" nullable="false" type="string" convertid="" ismult="false"></field>
+	    	<field name="unit" prop_name = "unit" show_name="单位" default_val="" nullable="true" type="string" convertid="" ismult="false"></field>
+	    </fields>
+	</config>
+	<config id="purchase" uploadType = "purchase"  exportFileName="学生消费记录">
+		<fields>
+			<field name="stuName" prop_name = "stuName" show_name="学生姓名" default_val="" nullable="false" type="string" convertid="" ismult="false" ></field>
+			<field name="studentCardNo" prop_name = "studentCardNo" show_name="学生学号" default_val="" nullable="true" type="string" convertid="" ismult="false"></field>
+			<field name="goodsName" prop_name = "goodsName" show_name="商品名称" default_val="" nullable="false" type="string" convertid="" ismult="false"></field>
+			<field name="number" prop_name = "number" show_name="购买数量" default_val="" nullable="false" type="string" convertid="" ismult="false"></field>
+			<field name="score" prop_name = "score" show_name="所用积分" default_val="" nullable="true" type="string" convertid="" ismult="false"></field>
+			<field name="create_date" prop_name = "create_date" show_name="购买时间" default_val="" nullable="true" type="datetime" convertid="" ismult="false"></field>
+		</fields>
+	</config>
+
+	<config id="goods_stock_history" uploadType = "goods_stock_history"  exportFileName="商品出入库记录">
+		<fields>
+			<field name="name" prop_name = "name" show_name="商品名称" default_val="" nullable="false" type="string" convertid="" ismult="false" ></field>
+			<field name="code" prop_name = "code" show_name="商品条码" default_val="" nullable="true" type="string" convertid="" ismult="false"></field>
+			<field name="option" prop_name = "option" show_name="出入库操作" default_val="" nullable="false" type="string" convertid="" ismult="false"></field>
+			<field name="number" prop_name = "number" show_name="出入库数量" default_val="" nullable="true" type="string" convertid="" ismult="false"></field>
+			<field name="score" prop_name = "score" show_name="当时积分" default_val="" nullable="true" type="string" convertid="" ismult="false"></field>
+			<field name="unit" prop_name = "unit" show_name="商品单位" default_val="" nullable="true" type="string" convertid="" ismult="false"></field>
+			<field name="create_date" prop_name = "create_date" show_name="操作时间" default_val="" nullable="true" type="datetime" convertid="" ismult="false"></field>
+		</fields>
+	</config>
+
+	<convertcontainer>
+		<!-- 数据库表数据和excel数据进行转换的集合 -->
+
+
+	</convertcontainer>
+</excelconfig>

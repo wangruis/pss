@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shop.pss.dao.ConsumeGoodsHistoryMapper">
+    <resultMap id="BaseResult" type="com.shop.pss.bean.PurchaseHistory">
+        <result column="studentCardNo" property="studentCardNo"/>
+        <result column="stuName" property="stuName"/>
+        <result column="goodsName" property="goodsName"/>
+        <result column="number" property="number"/>
+        <result column="score" property="score" jdbcType="DECIMAL"/>
+        <result column="option" property="option" />
+        <result column="create_date" property="create_date" />
+    </resultMap>
+
+    <select id="queryPurchase" resultMap="BaseResult">
+          SELECT
+            ch.id,
+            ch.student_card_number AS studentCardNo,
+            DATE_FORMAT(ch.create_date, '%Y-%m-%d %H:%i:%s') AS create_date,
+            stu.`name` AS stuName,
+            ch.score
+          FROM
+            consume_history ch
+            LEFT JOIN sys_student stu ON stu.cardid = ch.student_card_number
+          WHERE stu.cardstatus = 1
+          ORDER BY
+            ch.create_date DESC
+      </select>
+
+    <select id="queryPurchaseHistory" parameterType="java.util.Map" resultMap="BaseResult">
+        SELECT
+            stu.`name` AS stuName,
+            stu.cardid AS studentCardNo,
+            gsd.`name` AS goodsName,
+            gsd.number AS number,
+            gsd.score,
+        CASE
+            gsd.`option`
+                WHEN 'out_stock' THEN '销售出库'
+                WHEN 'put_stock' THEN '新增入库'
+                WHEN 'update_out_stock' THEN '修改出库'
+                WHEN 'update_put_stock' THEN '修改入库'
+                WHEN 'delete_stock' THEN '删除库存'
+                WHEN 'update_score' THEN '修改积分'
+                END `option`,
+            DATE_FORMAT(gsd.create_date, '%Y-%m-%d %H:%i:%s') AS create_date
+        FROM
+            consume_goods cg
+        LEFT JOIN consume_history ch ON ch.id = cg.consume_his_id
+        LEFT JOIN sys_student stu ON ch.student_card_number = stu.cardid
+        LEFT JOIN goods_stock_detailed gsd ON gsd.id = cg.goods_id
+        WHERE stu.cardstatus = 1
+        <if test="studentCardNo != null and studentCardNo != ''">
+            AND ch.student_card_number = #{studentCardNo}
+        </if>
+        <if test="goodsName != null and goodsName != ''">
+            AND gsd.`name` LIKE CONCAT('%',#{goodsName},'%')
+        </if>
+        <if test="stuName != null and stuName != ''">
+            AND stu.`name` LIKE CONCAT('%',#{stuName},'%')
+        </if>
+        <if test="start_date != null and start_date != ''">AND gsd.create_date <![CDATA[>=]]> #{start_date}</if>
+        <if test="end_date != null and end_date != ''">AND gsd.create_date <![CDATA[<=]]>#{end_date}</if>
+        ORDER BY
+        gsd.create_date DESC
+    </select>
+
+    <select id="exportPurchaseHistory" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+        stu.`name` AS stuName,
+        stu.cardid AS studentCardNo,
+        gsd.`name` AS goodsName,
+        gsd.number AS number,
+        gsd.score,
+        CASE
+        gsd.`option`
+        WHEN 'out_stock' THEN '销售出库'
+        WHEN 'put_stock' THEN '新增入库'
+        WHEN 'update_out_stock' THEN '修改出库'
+        WHEN 'update_put_stock' THEN '修改入库'
+        WHEN 'delete_stock' THEN '删除库存'
+        WHEN 'update_score' THEN '修改积分'
+        END `option`,
+        DATE_FORMAT(gsd.create_date, '%Y-%m-%d %H:%i:%s') AS create_date
+        FROM
+        consume_goods cg
+        LEFT JOIN consume_history ch ON ch.id = cg.consume_his_id
+        LEFT JOIN sys_student stu ON ch.student_card_number = stu.cardid
+        LEFT JOIN goods_stock_detailed gsd ON gsd.id = cg.goods_id
+        WHERE stu.cardstatus = 1
+        <if test="studentCardNo != null and studentCardNo != ''">
+            AND ch.student_card_number = #{studentCardNo}
+        </if>
+        <if test="goodsName != null and goodsName != ''">
+            AND gsd.`name` LIKE CONCAT('%',#{goodsName},'%')
+        </if>
+        <if test="stuName != null and stuName != ''">
+            AND stu.`name` LIKE CONCAT('%',#{stuName},'%')
+        </if>
+        <if test="start_date != null and start_date != ''">AND gsd.create_date <![CDATA[>=]]> #{start_date}</if>
+        <if test="end_date != null and end_date != ''">AND gsd.create_date <![CDATA[<=]]>#{end_date}</if>
+        ORDER BY
+        gsd.create_date DESC
+    </select>
+
+
+    <insert id="insert" parameterType="java.util.List">
+        INSERT INTO
+          consume_history (id, student_card_number, score, create_date)
+        VALUES (#{id}, #{studentCardNumber}, #{score}, now())
+    </insert>
+
+</mapper>

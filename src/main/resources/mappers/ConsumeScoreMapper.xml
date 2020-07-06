@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shop.pss.dao.ConsumeScoreMapper">
+	<select id="queryAvailableScore" parameterType="java.lang.String" resultType="com.shop.pss.bean.ConsumeScore">
+		SELECT
+			m.id,
+			s.`name` AS stuName,
+			s.registerid AS registerId,
+			s.cardid AS cardNo,
+			m.availableScore,
+			m.usedScore
+		FROM
+			sys_student s
+			LEFT JOIN sys_moraliintegration m ON s.registerid = m.registerid
+		WHERE
+			cardid = #{cardNo}
+			AND STATUS = 1
+			AND cardstatus = 1
+			AND deptid != 71
+			AND deptid != 72
+			AND deptid != 73
+	</select>
+	
+	<insert id="insertRecord">
+		INSERT INTO sys_consume_record_moraliintegration (consumetype, consumefund, consumetime, cardid, registerid, cardbalance, mocno)
+		VALUES
+			( '6', #{score}, now(), #{cardNo}, #{registerId}, #{availableScore}, 'DY001')
+	</insert>
+	
+	<update id="updateScore">
+		UPDATE sys_moraliIntegration
+		SET usedScore = #{usedScore},
+			availableScore = #{availableScore}
+		WHERE
+			id = #{id}
+	</update>
+</mapper>

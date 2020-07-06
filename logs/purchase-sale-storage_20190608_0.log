@@ -1,0 +1,8 @@
+2019-06-08 12:12:45.052 [http-nio-8080-exec-6] c.s.p.controller.advice.ExceptionAdvice:39 [ERROR]: 缺少请求参数:Required String parameter 'idCard' is not present
+2019-06-08 12:12:50.440 [http-nio-8080-exec-5] c.s.p.controller.advice.ExceptionAdvice:39 [ERROR]: 缺少请求参数:Required String parameter 'idCard' is not present
+2019-06-08 12:15:34.156 [http-nio-8080-exec-7] c.s.p.controller.advice.ExceptionAdvice:39 [ERROR]: 缺少请求参数:Required String parameter 'idCard' is not present
+2019-06-08 12:15:35.194 [http-nio-8080-exec-8] c.s.p.controller.advice.ExceptionAdvice:39 [ERROR]: 缺少请求参数:Required String parameter 'idCard' is not present
+2019-06-08 12:15:39.407 [http-nio-8080-exec-9] c.s.p.controller.advice.ExceptionAdvice:39 [ERROR]: 缺少请求参数:Required String parameter 'idCard' is not present
+2019-06-08 12:15:47.584 [http-nio-8080-exec-10] com.shop.pss.config.WebSecurityConfig:138 [INFO]: ------ login success username:admin
+2019-06-08 12:20:53.473 [http-nio-8080-exec-6] c.s.p.controller.advice.ExceptionAdvice:39 [ERROR]: 缺少请求参数:Required Long parameter 'userId' is not present
+2019-06-08 12:20:56.135 [http-nio-8080-exec-5] c.s.p.controller.advice.ExceptionAdvice:39 [ERROR]: 缺少请求参数:Required Long parameter 'userId' is not present
