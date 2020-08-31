@@ -388,4 +388,22 @@ public class GoodsStockManageService {
         newConsumeScore.setAvailableScore(consumeScore.getAvailableScore().subtract(score));
         return newConsumeScore;
     }
+
+
+    public PageInfo replenishment(int pageNum, int pageSize){
+        PageHelper.startPage(pageNum, pageSize);
+        PageInfo pageInfo = new PageInfo(goodsStockMapper.replenishment());
+        return pageInfo;
+    }
+
+    public List<Map> getAllGoods(String date){
+        return goodsStockMapper.getAllGoods(date);
+
+    }
+
+    public List<Map> getGoodsNum(String date){
+        return goodsStockMapper.getGoodsNum(date);
+
+    }
+
 }

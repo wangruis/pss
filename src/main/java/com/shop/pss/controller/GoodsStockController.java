@@ -255,4 +255,30 @@ public class GoodsStockController {
         return RestResult.success();
     }
 
+    /**
+     * 预估补货
+     * @return
+     */
+    @GetMapping("/replenishment")
+    public RestResult replenishment(@RequestParam(value = "pageNum", required = true, defaultValue = "1") int pageNum,
+                                    @RequestParam(value = "pageSize", required = true, defaultValue = "10") int pageSize){
+        return RestResult.success(goodsStockManageService.replenishment(pageNum, pageSize));
+    }
+
+
+    /**
+     * 统计
+     * @return
+     */
+    @GetMapping("/get_all_goods")
+    public RestResult getAllGoods(@RequestParam(value = "date", required = false) String date){
+        return RestResult.success(goodsStockManageService.getAllGoods(date));
+    }
+
+    @GetMapping("/get_goods_num")
+    public RestResult getGoodsNum(@RequestParam(value = "date", required = false) String date){
+        return RestResult.success(goodsStockManageService.getGoodsNum(date));
+    }
+
+
 }

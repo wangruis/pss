@@ -146,4 +146,61 @@
         UPDATE goods_shortage SET shortage_num = #{num}
     </update>
 
+    <select id="replenishment" resultType="Map">
+        select s.goods_id AS goodsId,s.`name`,s.stocknum,ifnull(y.avgnum,0) as avgnum,
+               ROUND(ifnull(y.avgnum,0) - s.stocknum) as estnum
+        from
+        (
+           select `code` as goods_id,SUM(number) as stocknum, `name`
+           from goods_stock   group by  `code`
+        ) as s
+          left join
+        (
+           select goods_id, ROUND(SUM(goods_num)/COUNT(DISTINCT date_format(create_date,'%Y-%m')) ,1) as avgnum
+           from temp_comp_a
+           group by goods_id
+        ) as y   on s.goods_id = y.goods_id
+        where ifnull(y.avgnum,0) > s.stocknum
+    </select>
+
+    <select id="getAllGoods" resultType="map" parameterType="String">
+        SELECT
+            name, code, sum(number) as num,score
+        FROM
+            goods_stock_detailed
+        WHERE
+            `option` = 'out_stock'
+            <choose>
+                <when test="date != null and date !=''">
+                    and DATE_FORMAT( create_date, '%Y-%m' ) = #{date}
+                </when>
+                <otherwise>
+                    and DATE_FORMAT( create_date, '%Y%m' ) = DATE_FORMAT( CURDATE( ) , '%Y%m' )
+                </otherwise>
+            </choose>
+        GROUP BY code
+    </select>
+
+    <select id="getGoodsNum" resultType="map" parameterType="String">
+        SELECT
+            NAME,
+            CODE,
+            sum(number) AS num,
+            score,
+            DATE_FORMAT(create_date, '%Y-%m-%d') AS date
+        FROM
+            goods_stock_detailed
+        WHERE
+            `option` = 'out_stock'
+        <choose>
+            <when test="date != null and date !=''">
+                and date( create_date ) = #{date}
+            </when>
+            <otherwise>
+                and to_days(create_date) = to_days(now())
+            </otherwise>
+        </choose>
+        GROUP BY code
+    </select>
+
 </mapper>

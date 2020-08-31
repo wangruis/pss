@@ -64,7 +64,7 @@ public class UserController {
     /**
      * @creator 王瑞
      * @createtime 2019/6/4 14:44
-     * @description: 修改y用户
+     * @description: 修改用户
      */
     @PostMapping("/update_user")
     public RestResult updateUser(@RequestBody User user) {

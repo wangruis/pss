@@ -39,4 +39,11 @@ public interface GoodsStockMapper {
 
     int delete(@Param("list") List<Long> list);
 
+
+    List<Map> replenishment();
+
+    List<Map> getAllGoods(@Param("date") String date);
+
+    List<Map> getGoodsNum(@Param("date") String date);
+
 }
